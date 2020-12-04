@@ -1,0 +1,18 @@
+.buttonGroup {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  & > div {
+    margin-bottom: 20px;
+  }
+
+  .gap {
+    margin-top: 20px;
+  }
+
+  .text {
+    width: 70%;
+  }
+}

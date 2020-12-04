@@ -1,0 +1,28 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+.primaryTitle {
+  font-size: 2rem;
+  padding-bottom: 20px;
+}
+.secondaryTitle {
+  padding-bottom: 20px;
+  font-size: 1.5rem;
+}
+.thirdTitle {
+  padding-top: 20px;
+  font-size: 1.2rem;
+}
+
+.form-text.warning {
+  color: darkorange;
+}
+.form-text.error {
+  color: red;
+}
+
+.link {
+  cursor: pointer;
+}
+.link:hover {
+  color: darkblue;
+}

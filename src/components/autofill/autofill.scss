@@ -1,0 +1,18 @@
+.autofill {
+  padding: 0;
+  margin-top: -15px;
+  list-style: none;
+  border: 1px solid lightgray;
+
+  .selected {
+    background-color: lightgray;
+  }
+
+  li {
+    padding-left: 10px;
+    cursor: pointer;
+  }
+  li:hover {
+    background-color: lightgray;
+  }
+}

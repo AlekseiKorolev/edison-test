@@ -1,0 +1,16 @@
+.signinContainer {
+  height: 100vh;
+  .row {
+    margin-top: 20px;
+    &:first-child {
+      margin-top: 100px;
+    }
+  }
+  .form {
+    min-width: 200px;
+    width: 30%;
+  }
+}
+.row {
+  justify-content: center;
+}
