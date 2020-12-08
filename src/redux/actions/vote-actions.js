@@ -5,7 +5,8 @@ import {
   LOADING,
   SET_ERROR,
   CLEAR_ERROR,
-  SET_ALERT
+  SET_ALERT,
+  SET_FINISH
 } from "../types";
 
 import { getFirstPhaseResult } from "../../util/first-phase-result";
@@ -32,10 +33,12 @@ const getPhaseTime = vote => {
 export const checkLastVote = data => dispatch => {
   let vote = data;
   if (!vote || vote === "update") {
+    //If current vote doesn't exists or times up
     vote = store.getState().vote.last;
   }
 
   if (vote.done) {
+    //If vote close
     dispatch({
       type: SET_PHASE,
       payload: { phase: "", milliseconds: 0 }
@@ -44,6 +47,17 @@ export const checkLastVote = data => dispatch => {
   }
 
   const { phaseFirstDiff, phaseSecondDiff } = getPhaseTime(vote);
+
+  const phase = store.getState().ui.phase;
+  if (
+    phaseFirstDiff < 0 &&
+    phaseSecondDiff < 0 &&
+    phase === "second" &&
+    data === "update"
+  ) {
+    dispatch({ type: SET_FINISH });
+    return;
+  }
 
   if (phaseFirstDiff > 0) {
     dispatch({
@@ -56,6 +70,7 @@ export const checkLastVote = data => dispatch => {
       payload: { phase: "second", milliseconds: phaseSecondDiff }
     });
     if (data === "update" || !("second" in data)) {
+      //get diagramm data and switch from first phase to second
       const voted = store.getState().vote.last.first;
       const {
         inner,
@@ -65,7 +80,6 @@ export const checkLastVote = data => dispatch => {
         winnerList,
         voterList
       } = getFirstPhaseResult(voted);
-
       dispatch(
         startSecondPhase(inner, outer, winner, tie, winnerList, voterList)
       );
@@ -79,7 +93,6 @@ export const checkLastVote = data => dispatch => {
 };
 
 export const getVote = () => dispatch => {
-  dispatch({ type: LOADING });
   firestore
     .collection("vote")
     .doc("current")
@@ -89,9 +102,20 @@ export const getVote = () => dispatch => {
       },
       doc => {
         if (!doc.exists) {
-          return;
+          //Document doesn't exists
+          firestore
+            .collection("vote")
+            .doc("current")
+            .set({ autoCreated: true })
+            .then(() => {
+              dispatch({ type: CLEAR_ERROR });
+            })
+            .catch(error => {
+              dispatch({ type: SET_ERROR, payload: error.message });
+            });
         }
         const vote = doc.data();
+        dispatch({ type: LOADING }); //to refresh phase component
         dispatch({ type: GET_VOTE, payload: vote });
         dispatch({ type: CLEAR_ERROR });
         dispatch(checkLastVote(vote));
@@ -101,8 +125,9 @@ export const getVote = () => dispatch => {
 
 export const startVote = () => dispatch => {
   const phase = store.getState().ui.phase;
+  const isFinished = store.getState().ui.isFinished;
   const email = store.getState().user.email;
-  if (phase) {
+  if (phase && !isFinished) {
     dispatch({
       type: SET_ALERT,
       payload: {
@@ -126,8 +151,8 @@ export const startVote = () => dispatch => {
   };
 
   const message = "Голосование успешно создано";
+  //dispatch({ type: START_VOTE });
   dispatch(updateVote(vote, message));
-  dispatch(getVote());
 };
 
 export const firstPhaseVote = phase => dispatch => {
@@ -143,7 +168,7 @@ export const firstPhaseVote = phase => dispatch => {
   }
 
   const vote = store.getState().vote.last;
-  vote.first.push({ email, time, event });
+  vote.first.push({ email, time, event: event.trim().toLowerCase() });
   const message = "Ваш голос учтён";
   dispatch(updateVote(vote, message));
   dispatch(updateVocabulary(event));
@@ -198,6 +223,15 @@ export const closeVote = () => dispatch => {
   const message = "";
   dispatch(updateVote(vote, message));
 };
+
+/*const autoCloseVote = () => dispatch => {
+  const vote = store.getState().vote.last;
+  vote.autoClose = true;
+  vote.durSecond = vote.durSecond + 2 * 60 * 100;
+  const message =
+    "Результаты голосования будут автоматически удалены через 2 минуты";
+  dispatch(updateVote(vote, message));
+};*/
 
 export const restartVote = () => dispatch => {
   dispatch({

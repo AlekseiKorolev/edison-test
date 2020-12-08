@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 // redux
 import { useSelector } from "react-redux";
@@ -15,13 +15,19 @@ const FirstPhase = () => {
   const voted = useSelector(state => state.vote.last.first).some(
     vote => vote.email === email
   );
+  const countdown = useSelector(state => state.ui.countdown);
+  const loading = useSelector(state => state.ui.loading);
+  const timer = useMemo(() => <Timer countdown={countdown} />, [countdown]);
+
   return (
     <div className="phaseContainer">
       <div className="secondaryTitle">
         До конца первой фазы голосования осталось
       </div>
-      <Timer />
-      {voted ? (
+
+      {!loading && timer}
+
+      {!loading && voted ? (
         <div>Вы уже проголосовали. Дождитесь результатов</div>
       ) : (
         <FirstPhaseForm />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 
 import { PieChart } from "react-minimal-pie-chart";
 
@@ -10,21 +10,28 @@ const toChartFormat = data => {
   });
 };
 
+const labelFormat = str => {
+  if (str.length > 15) {
+    return str.slice(0, 15) + "...";
+  }
+  return str;
+};
+
 const Diagram = ({ inner, outer }) => {
   return (
     <div className="diagramContainer">
       <PieChart
         viewBoxSize={[100, 100]}
         data={toChartFormat(outer)}
-        radius={45}
-        lineWidth={25}
+        radius={38}
+        lineWidth={20}
         segmentsShift="1"
-        label={({ dataEntry }) => dataEntry.title}
+        label={({ dataEntry }) => labelFormat(dataEntry.title)}
         labelStyle={{
-          fontSize: "0.4em",
-          fill: "#000000"
+          fontSize: "0.3em",
+          fill: "#000"
         }}
-        labelPosition={105}
+        labelPosition={119}
         className="outer"
       />
       <PieChart
@@ -43,4 +50,4 @@ const Diagram = ({ inner, outer }) => {
   );
 };
 
-export default Diagram;
+export default memo(Diagram);

@@ -5,7 +5,9 @@ import {
   SET_PHASE,
   SET_VOCABULARY,
   SET_ALERT,
-  REMOVE_ALERT
+  REMOVE_ALERT,
+  SET_FINISH,
+  GET_VOTE
 } from "../types";
 
 const initialState = {
@@ -15,10 +17,12 @@ const initialState = {
   phase: "",
   vocabulary: [],
   info: [],
-  break: false
+  break: false,
+  isFinished: false
 };
 
 const uiReducer = (state = initialState, action) => {
+  let alert;
   switch (action.type) {
     case LOADING:
       return { ...state, loading: true };
@@ -46,16 +50,28 @@ const uiReducer = (state = initialState, action) => {
         vocabulary: action.payload.vocabulary
       };
     case SET_ALERT:
+      alert = [...state.info];
+      if (alert.length > 5) alert.pop();
       return {
         ...state,
-        info: [action.payload, ...state.info]
+        info: [action.payload, ...alert]
       };
     case REMOVE_ALERT:
-      const alert = [...state.info];
+      alert = [...state.info];
       alert.shift();
       return {
         ...state,
         info: alert
+      };
+    case SET_FINISH:
+      return {
+        ...state,
+        isFinished: true
+      };
+    case GET_VOTE:
+      return {
+        ...state,
+        isFinished: false
       };
     default:
       return state;

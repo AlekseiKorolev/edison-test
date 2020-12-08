@@ -32,8 +32,6 @@ export const signin = isNew => dispatch => {
           type: SET_ALERT,
           payload: { message: "Регистрация прошла успешно", type: "info" }
         });
-        dispatch(getVote());
-        dispatch(setVocabulary());
         dispatch({ type: CLEAR_ERROR });
       })
       .catch(error => {
@@ -56,8 +54,6 @@ export const signin = isNew => dispatch => {
           type: SET_ALERT,
           payload: { message: "Вход успешно выполнен", type: "info" }
         });
-        dispatch(getVote());
-        dispatch(setVocabulary());
         dispatch({ type: CLEAR_ERROR });
       })
       .catch(error => {
@@ -71,6 +67,8 @@ export const signin = isNew => dispatch => {
         });
       });
   }
+  dispatch(getVote());
+  dispatch(setVocabulary());
 };
 
 export const signout = () => dispatch => {

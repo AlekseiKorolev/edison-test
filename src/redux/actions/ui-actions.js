@@ -32,6 +32,7 @@ export const setVocabulary = () => dispatch => {
           });
           return;
         }
+
         dispatch({ type: SET_VOCABULARY, payload: doc.data() });
         dispatch({ type: CLEAR_ERROR });
       }
@@ -47,8 +48,9 @@ export const updateVocabulary = event => dispatch => {
     .then(doc => {
       if (!doc.exists) return;
       const { vocabulary } = doc.data();
-      if (!vocabulary.includes(event.toLowerCase())) {
-        vocabulary.push(event);
+      const newEvent = event.trim().toLowerCase();
+      if (!vocabulary.includes(newEvent)) {
+        vocabulary.push(newEvent);
       }
       firestore
         .collection("auto")

@@ -15,7 +15,7 @@ import FirstPhase from "../../components/first-phase/first-phase.component";
 import SecondPhase from "../../components/second-phase/second-phase.component";
 import Alert from "../../components/alert/alert.component";
 
-const renderPhase = (phase, time) => {
+const renderPhase = phase => {
   switch (phase) {
     case "first":
       return <FirstPhase />;
@@ -31,7 +31,6 @@ const Home = () => {
   const email = useSelector(state => state.user.email);
   const phase = useSelector(state => state.ui.phase);
   const info = useSelector(state => state.ui.info);
-  const loading = useSelector(state => state.ui.loading);
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -60,7 +59,7 @@ const Home = () => {
           </div>
         </Col>
       </Row>
-      {!loading && <Row className="phase">{renderPhase(phase)}</Row>}
+      <Row className="phase">{renderPhase(phase)}</Row>
       {isShow && (
         <Alert
           message={info[0].message}

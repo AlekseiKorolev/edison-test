@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 
 // redux
 import { useDispatch, useSelector } from "react-redux";
@@ -11,6 +11,7 @@ import {
 
 // components
 import Timer from "../timer/timer.component";
+import Board from "../board/board.component";
 import Diagram from "../diagram/diagram.component";
 import WinnerList from "../winner-list/winner-list.component";
 
@@ -31,7 +32,19 @@ const SecondPhase = () => {
   } = useSelector(state => state.vote.last);
   const email = useSelector(state => state.user.email);
   const loading = useSelector(state => state.ui.loading);
-
+  const countdown = useSelector(state => state.ui.countdown);
+  const isFinished = useSelector(state => state.ui.isFinished);
+  const timer = useMemo(() => <Timer countdown={countdown} />, [countdown]);
+  const diagram = useMemo(
+    () =>
+      inner && inner.length > 0 ? (
+        <Diagram
+          inner={inner.map(el => Object.values(el))}
+          outer={outer.map(el => Object.values(el))}
+        />
+      ) : null,
+    [inner, outer]
+  );
   const dispatch = useDispatch();
 
   const handleClick = type => {
@@ -58,15 +71,9 @@ const SecondPhase = () => {
       <div className="secondaryTitle">
         До конца второй фазы голосования осталось
       </div>
+      {!loading && !isFinished ? timer : <Board />}
 
-      <Timer />
-
-      {inner !== undefined && inner.length !== 0 && (
-        <Diagram
-          inner={inner.map(el => Object.values(el))}
-          outer={outer.map(el => Object.values(el))}
-        />
-      )}
+      {!loading && diagram}
 
       {tie || second.length === 0 ? (
         <div>
@@ -80,7 +87,7 @@ const SecondPhase = () => {
         )
       )}
 
-      {!tie && voters.includes(email) ? (
+      {!isFinished && !tie && voters.includes(email) ? (
         <div className="buttonGroup">
           <div>Хотите присоединиться к победителю ?</div>
           <ButtonGroup>
@@ -102,24 +109,42 @@ const SecondPhase = () => {
         </div>
       ) : null}
 
-      {(tie || breakVote) && author === email ? (
+      {!isFinished && (tie || breakVote) ? (
         <div className="buttonGroup">
           <div className="text">
-            Голосование завершено и автоматически будет удалено по завершению
-            второй фазы.
+            Голосование завершено. Дождитесь окончания второй фазы
           </div>
-          <ButtonGroup>
-            <Button variant="primary" onClick={handleClose} disabled={loading}>
-              Закрыть
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={handleRestart}
-              disabled={loading}
-            >
-              Перезапустить
-            </Button>
-          </ButtonGroup>
+        </div>
+      ) : null}
+
+      {!isFinished && author === email && (
+        <ButtonGroup>
+          <Button variant="primary" onClick={handleClose} disabled={loading}>
+            Закрыть
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleRestart}
+            disabled={loading}
+          >
+            Перезапустить
+          </Button>
+        </ButtonGroup>
+      )}
+
+      {isFinished ? (
+        <div className="buttonGroup">
+          <div className="text">
+            Голосование закроеткся автоматически, как только появиться новое
+            активное голосование
+          </div>
+          <Button
+            variant="primary"
+            onClick={() => handleRestart()}
+            disabled={loading}
+          >
+            Закрыть
+          </Button>
         </div>
       ) : null}
     </div>

@@ -12,7 +12,9 @@ const useInterval = (initailState = 0, countdown) => {
     const interval = setInterval(() => setTime(time => time + 1000), 1000);
     setTimer(interval);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   useEffect(() => {

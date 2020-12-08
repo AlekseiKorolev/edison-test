@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 
 import { required } from "../../util/validators";
+import { timeOptions } from "../../util/time-options";
 
 // redux
 import { useDispatch, useSelector } from "react-redux";
@@ -14,27 +15,6 @@ import Autofill from "../autofill/autofill.component";
 
 // bootstrap
 import { Form, Button } from "react-bootstrap";
-
-const timeFormat = time => (time < 10 ? "0" + time : time);
-
-const renderOptions = () => {
-  const date = new Date();
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const time = [""];
-  for (let h = hours; h < 23; h++) {
-    for (let m = 15 * Math.ceil(minutes / 15); m <= 60; m += 15) {
-      time.push(
-        `${timeFormat(m === 60 ? h + 1 : h)} : ${timeFormat(m === 60 ? 0 : m)}`
-      );
-    }
-  }
-  return time.map((t, index) => (
-    <option key={`option${index}`} value={t}>
-      {t}
-    </option>
-  ));
-};
 
 const FirstPhaseForm = () => {
   const [display, setDisplay] = useState(false);
@@ -80,7 +60,7 @@ const FirstPhaseForm = () => {
         component={CustomSelect}
         validate={required}
       >
-        {renderOptions()}
+        {timeOptions()}
       </Field>
 
       <Field
